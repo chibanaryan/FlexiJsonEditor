@@ -1,14 +1,16 @@
 var json = {
-    "string": "foo",
-    "number": 5,
-    "array": [1, 2, 3],
-    "object": {
-        "property": "value",
-        "subobj": {
-            "arr": ["foo", "ha"],
-            "numero": 1
-        }
-    }
+	"schema": "http://json-schema.org/draft-04/schema",
+	"name": "Report",
+	"type": "object",
+	"javaType": "",
+	"additionalProperties": false,
+	"description": "Report describing...",
+	"properties": {
+		"reportNumber": {
+			"description": "Unique identifier assigned to the report by an agency. This identifier may not be globally unique.",
+			"type": "string"
+		},
+	}
 };
 
 function printJSON() {

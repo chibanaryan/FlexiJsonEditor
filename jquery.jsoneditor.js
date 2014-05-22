@@ -112,10 +112,12 @@
     function addExpander(item) {
         if (item.children('.expander').length == 0) {
             var expander =   $('<span>',  { 'class': 'expander' });
+            
             expander.bind('click', function() {
                 var item = $(this).parent();
                 item.toggleClass('expanded');
             });
+            
             item.prepend(expander);
         }
     }
@@ -134,6 +136,7 @@
         return appender;
     }
 
+    /* Original:
     function addNewValue(json) {
         if (isArray(json)) {
             json.push(null);
@@ -153,6 +156,47 @@
         }
 
         return false;
+    }*/
+    
+    function addNewValue(json) {
+        if (isArray(json)) {
+            json.push(null);
+            return true;
+        }
+
+        if (isObject(json)) {
+            var i = 1, newName = "newKey";
+
+            while (json.hasOwnProperty(newName)) {
+                newName = "newKey" + i;
+                i++;
+            }
+
+			//New property added dependent on context
+			if (json.hasOwnProperty("properties")) json[newName] = null;
+            else if (json["type"] == "object") {
+            	if (!json.hasOwnProperty("description")) json["description"] = "";
+            	if (!json.hasOwnProperty("properties")) json["properties"] = {"newKey":{"type":""}};
+            }
+            else if (json["type"] == "array") {
+            	if (!json.hasOwnProperty("description")) json["description"] = "";
+            	if (!json.hasOwnProperty("items")) json["items"] = {"type":""};
+            }
+            else if (json["type"] == "string" && (!json.hasOwnProperty("description") || !json.hasOwnProperty("pattern"))) {
+            	if (!json.hasOwnProperty("description")) json["description"] = "";
+            	else json["pattern"] = "";
+            }
+            else if ((json["type"] == "number" || json["type"] == "boolean") && !json.hasOwnProperty("description")) {
+            	json["description"] = "";
+            }
+            else {
+            	json[newName] = {"type":""};            
+            }
+        
+            return true;
+        }
+
+        return false;
     }
     
     function construct(opt, json, root, path) {
@@ -162,6 +206,9 @@
         
         for (var key in json) {
             if (!json.hasOwnProperty(key)) continue;
+            
+            //Omits displaying some header properties typical of schema files but unuseful to the average user
+            if (json.hasOwnProperty("properties") && (key == "schema" || key == "javaType" || key == "additionalProperties")) continue;
 
             var item     = $('<div>',   { 'class': 'item', 'data-path': path }),
                 property =   $(opt.propertyElement || '<input>', { 'class': 'property' }),
@@ -196,6 +243,7 @@
                 opt.onchange(parse(stringify(opt.original)));
             })
         }
+        
     }
 
     function updateParents(el, opt) {
